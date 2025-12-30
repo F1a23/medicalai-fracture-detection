@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fracture Detection AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <div class="brandTitle">Fracture Detection AI</div>
+        <div class="brandSub">Deep Learning • X-ray Analysis • Clinical Workflow</div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <button class="chip chipBtn" id="themeBtn" type="button" aria-label="Toggle theme">
+        <span class="chipIcon" id="themeIcon">🌙</span>
+        <span id="themeText">Night</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="heroCard">
+        <div class="heroLeft">
+          <div class="pillRow">
+            <span class="pill">For Doctors & Nurses</span>
+            <span class="pill pillGhost">Secure Record Saving</span>
+          </div>
+
+          <h1 class="heroTitle">Bone Fracture Detection from X-ray</h1>
+          <p class="heroText">
+            The clinician enters their <b>Staff ID</b> and patient details, uploads an X-ray,
+            and the AI returns <b>Fracture / No Fracture</b> with a <b>type + description</b>.
+            The record is saved automatically to MongoDB.
+          </p>
+
+          <div class="heroButtons">
+            <button class="btn btnPrimary" id="btnStart">Start Analysis</button>
+          </div>
+
+          <div class="bigStats">
+            <div class="bigStat">
+              <div class="bigNum">1</div>
+              <div class="bigLbl">Staff ID</div>
+            </div>
+            <div class="bigStat">
+              <div class="bigNum">2</div>
+              <div class="bigLbl">Patient Info</div>
+            </div>
+            <div class="bigStat">
+              <div class="bigNum">3</div>
+              <div class="bigLbl">AI Result</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="heroRight">
+          <div class="heroArt">
+            <svg viewBox="0 0 520 420" aria-hidden="true">
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="var(--a1)"/>
+                  <stop offset="1" stop-color="var(--a2)"/>
+                </linearGradient>
+                <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0" stop-color="rgba(255,255,255,.10)"/>
+                  <stop offset="1" stop-color="rgba(255,255,255,.03)"/>
+                </linearGradient>
+                <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="12"/>
+                </filter>
+              </defs>
+
+              <circle cx="120" cy="120" r="85" fill="url(#g1)" opacity=".22" filter="url(#blur)"/>
+              <circle cx="420" cy="210" r="95" fill="url(#g1)" opacity=".18" filter="url(#blur)"/>
+
+              <rect x="70" y="55" width="380" height="290" rx="26" fill="url(#g2)" stroke="rgba(255,255,255,.10)"/>
+              <rect x="92" y="82" width="336" height="40" rx="14" fill="rgba(255,255,255,.06)"/>
+              <rect x="92" y="138" width="336" height="40" rx="14" fill="rgba(255,255,255,.06)"/>
+              <rect x="92" y="196" width="200" height="40" rx="14" fill="rgba(255,255,255,.06)"/>
+              <rect x="306" y="196" width="122" height="40" rx="14" fill="rgba(255,255,255,.06)"/>
+
+              <rect x="92" y="260" width="336" height="18" rx="99" fill="rgba(0,0,0,.18)" stroke="rgba(255,255,255,.08)"/>
+              <rect x="92" y="260" width="210" height="18" rx="99" fill="url(#g1)" opacity=".85"/>
+
+              <rect x="150" y="305" width="220" height="80" rx="20" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.10)"/>
+              <path d="M215 328c18-18 34-18 52 0s34 18 52 0" fill="none" stroke="url(#g1)" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+              <circle cx="185" cy="346" r="8" fill="url(#g1)" opacity=".9"/>
+            </svg>
+
+            <div class="floatingTag ft1">Clinician</div>
+            <div class="floatingTag ft2">MongoDB</div>
+            <div class="floatingTag ft3">AI Result</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORM SCREEN -->
+    <section class="screen hidden" id="screenForm">
+      <div class="formWrap">
+        <div class="formHeader">
+          <div>
+            <h2 class="h2">Start analysis</h2>
+            <p class="sub">Enter Staff ID, patient info, then upload an X-ray.</p>
+          </div>
+          <div class="formHeaderBtns">
+            <button class="btn btnGhost" id="btnBack">Back</button>
+            <button class="btn btnSecondary" id="btnReset">Reset</button>
+          </div>
+        </div>
+
+        <div class="formGrid2">
+          <!-- Form Card -->
+          <div class="card bigCard">
+            <div class="cardTop">
+              <div class="cardTitle">Clinical Form</div>
+              <span class="pill pillGhost">Step 1</span>
+            </div>
+
+            <form id="form" class="form">
+              <div class="inputsGrid">
+                <div class="field">
+                  <label>Staff ID (Doctor/Nurse)</label>
+                  <input class="input" id="staffId" type="text" minlength="3" maxlength="30" required />
+                </div>
+
+                <div class="field">
+                  <label>Patient ID</label>
+                  <input class="input" id="pid" type="text" minlength="2" maxlength="40" required />
+                </div>
+
+                <div class="field">
+                  <label>Full Name</label>
+                  <input class="input" id="name" type="text" minlength="2" maxlength="80" required />
+                </div>
+
+                <div class="field">
+                  <label>Scan Type</label>
+                  <select class="input" id="scanType">
+                    <option value="X-Ray" selected>X-Ray</option>
+                    <option value="CT">CT</option>
+                    <option value="MRI">MRI</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Age</label>
+                  <div class="ageRow">
+                    <input class="input" id="ageValue" type="number" min="0" max="1200" required />
+                    <select class="input" id="ageUnit">
+                      <option value="years" selected>Years</option>
+                      <option value="months">Months</option>
+                    </select>
+                  </div>
+                  <div class="muted miniHint">Years must be ≥ 1, Months can be ≥ 0.</div>
+                </div>
+
+                <div class="field">
+                  <label>Clinician Notes (optional)</label>
+                  <textarea class="input textarea" id="notes" placeholder="Write your notes here..."></textarea>
+                </div>
+              </div>
+
+              <div class="uploadGrid">
+                <div class="uploadBox">
+                  <div class="uploadIcon">🩻</div>
+                  <div>
+                    <div class="uploadTitle">Upload X-ray Image</div>
+                    <div class="muted">Click to choose (PNG/JPG/WebP)</div>
+                  </div>
+                  <input id="xray" type="file" accept="image/*" required />
+                </div>
+
+                <div class="previewBox">
+                  <div class="previewHint" id="previewHint">Image preview will appear here</div>
+                  <img id="previewImg" alt="Preview"/>
+                </div>
+              </div>
+
+              <div class="actionsRow">
+                <button class="btn btnPrimary btnBig" type="submit">Submit & Analyze</button>
+              </div>
+
+              <div class="note">
+                The record will be saved to MongoDB with Staff ID + Patient ID + AI result.
+              </div>
+            </form>
+          </div>
+
+          <!-- Side Summary -->
+          <div class="card bigCard">
+            <div class="cardTop">
+              <div class="cardTitle">Live Summary</div>
+              <span class="pill pillGhost">Live</span>
+            </div>
+
+            <div class="summaryBox">
+              <div class="kv"><span class="k">Staff ID</span><span class="v" id="sStaff">—</span></div>
+              <div class="kv"><span class="k">Patient ID</span><span class="v" id="sId">—</span></div>
+              <div class="kv"><span class="k">Name</span><span class="v" id="sName">—</span></div>
+              <div class="kv"><span class="k">Age</span><span class="v" id="sAge">—</span></div>
+              <div class="kv"><span class="k">Scan</span><span class="v" id="sScan">—</span></div>
+
+              <div class="divider"></div>
+
+              <div class="badge warn" id="miniStatus">
+                <span class="dot warn"></span>
+                <span>Waiting for submission</span>
+              </div>
+
+              <div class="helpCard">
+                Tip: Use unique Patient ID to keep one patient profile. Each analysis creates a new record.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section class="screen hidden" id="screenResult">
+      <div class="resultWrap">
+        <div class="resultHeader">
+          <div>
+            <h2 class="h2">Analysis Result</h2>
+            <p class="sub" id="resultSub">Completed</p>
+          </div>
+          <div class="resultBtns">
+            <button class="btn btnSecondary" id="btnNew">New Analysis</button>
+            <button class="btn btnGhost" id="btnHome">Home</button>
+          </div>
+        </div>
+
+        <div class="resultGrid">
+          <div class="card bigCard">
+            <div class="cardTop">
+              <div class="cardTitle">AI Output</div>
+              <span class="pill pillGhost" id="runtime">Done</span>
+            </div>
+
+            <div class="bigBadge warn" id="finalBadge">
+              <span class="dot warn"></span>
+              <span id="finalLabel">—</span>
+            </div>
+
+            <div class="confidenceRow">
+              <span class="pill pillGhost">Confidence</span>
+              <span class="muted" id="finalConf">—</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="kv">
+              <span class="k">Fracture Type</span>
+              <span class="v" id="fractureType">—</span>
+            </div>
+
+            <div class="descBox">
+              <div class="descTitle">AI Description</div>
+              <div class="descText" id="fractureDesc">—</div>
+            </div>
+
+            <div class="descBox">
+              <div class="descTitle">Clinician Notes (Saved)</div>
+              <div class="descText" id="savedNotes">—</div>
+            </div>
+          </div>
+
+          <div class="card bigCard">
+            <div class="cardTop">
+              <div class="cardTitle">Patient + Image</div>
+              <span class="pill pillGhost">Record</span>
+            </div>
+
+            <div class="patientGrid">
+              <div class="pBox"><div class="k">Staff ID</div><div class="v" id="oStaff">—</div></div>
+              <div class="pBox"><div class="k">Patient ID</div><div class="v" id="oId">—</div></div>
+              <div class="pBox"><div class="k">Full Name</div><div class="v" id="oName">—</div></div>
+              <div class="pBox"><div class="k">Age</div><div class="v" id="oAge">—</div></div>
+              <div class="pBox"><div class="k">Scan Type</div><div class="v" id="oScan">—</div></div>
+              <div class="pBox"><div class="k">Record ID</div><div class="v" id="oRecord">—</div></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="imageCard">
+              <div class="imageHeader">
+                <div style="font-weight:1000;">Annotated X-ray</div>
+                <div id="imgStatus" class="muted">—</div>
+              </div>
+
+              <div class="imageFrame">
+                <img id="annotatedImg" alt="Annotated result" />
+              </div>
+            </div>
+
+            <div class="note" style="margin-top:10px;">
+              The image is displayed inside a fixed box to prevent page stretching.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Loading Overlay -->
+  <div class="overlay hidden" id="overlay">
+    <div class="overlayCard">
+      <div class="spinner"></div>
+      <div class="overlayTitle">Analyzing X-ray...</div>
+      <div class="overlayText">Please wait while the model processes the image.</div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toastWrap" id="toastWrap"></div>
+
+  <footer class="footer">
+    <div class="footerInner">
+      © <span id="year"></span> Fatima Al-Amri | Software Engineer | AI & Data Science
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+  <script>
+    // ===== Toast =====
+    const toastWrap = document.getElementById("toastWrap");
+    function toast(type, title, msg){
+      const t = document.createElement("div");
+      t.className = `toast ${type}`;
+      t.innerHTML = `
+        <div class="toastTop">
+          <div class="toastTitle">${title}</div>
+          <button class="toastX" aria-label="Close">✕</button>
+        </div>
+        <div class="toastMsg">${msg}</div>
+      `;
+      toastWrap.appendChild(t);
+      const btn = t.querySelector(".toastX");
+      btn.addEventListener("click", ()=> t.remove());
+      setTimeout(()=> { if(t.isConnected) t.classList.add("show"); }, 10);
+      setTimeout(()=> { if(t.isConnected) { t.classList.remove("show"); setTimeout(()=> t.remove(), 200); } }, 4200);
+    }
+
+    // ===== Theme Toggle =====
+    const themeBtn = document.getElementById("themeBtn");
+    const themeText = document.getElementById("themeText");
+    const themeIcon = document.getElementById("themeIcon");
+
+    function setTheme(mode){
+      document.documentElement.setAttribute("data-theme", mode);
+      localStorage.setItem("theme", mode);
+      if(mode === "light"){
+        themeText.textContent = "Day";
+        themeIcon.textContent = "☀️";
+      }else{
+        themeText.textContent = "Night";
+        themeIcon.textContent = "🌙";
+      }
+    }
+    const saved = localStorage.getItem("theme");
+    if(saved){
+      setTheme(saved);
+    }else{
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      setTheme(prefersLight ? "light" : "dark");
+    }
+    themeBtn.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(current === "dark" ? "light" : "dark");
+    });
+
+    // ===== Screens =====
+    const screenForm = document.getElementById("screenForm");
+    const screenResult = document.getElementById("screenResult");
+
+    const btnStart = document.getElementById("btnStart");
+    const btnBack = document.getElementById("btnBack");
+    const btnReset = document.getElementById("btnReset");
+    const btnNew = document.getElementById("btnNew");
+    const btnHome = document.getElementById("btnHome");
+
+    function show(el){ el.classList.remove("hidden"); }
+    function hide(el){ el.classList.add("hidden"); }
+
+    btnStart.addEventListener("click", () => {
+      show(screenForm);
+      screenForm.scrollIntoView({ behavior: "smooth" });
+    });
+
+    btnBack.addEventListener("click", () => {
+      hide(screenForm);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    btnHome.addEventListener("click", () => {
+      hide(screenResult);
+      hide(screenForm);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // ===== Form Logic =====
+    const form = document.getElementById("form");
+
+    const staffEl = document.getElementById("staffId");
+    const pidEl = document.getElementById("pid");
+    const nameEl = document.getElementById("name");
+
+    const ageValueEl = document.getElementById("ageValue");
+    const ageUnitEl = document.getElementById("ageUnit");
+
+    const scanEl = document.getElementById("scanType");
+    const notesEl = document.getElementById("notes");
+
+    const xrayEl = document.getElementById("xray");
+
+    const previewImg = document.getElementById("previewImg");
+    const previewHint = document.getElementById("previewHint");
+
+    const sStaff = document.getElementById("sStaff");
+    const sId = document.getElementById("sId");
+    const sName = document.getElementById("sName");
+    const sAge = document.getElementById("sAge");
+    const sScan = document.getElementById("sScan");
+    const miniStatus = document.getElementById("miniStatus");
+
+    const overlay = document.getElementById("overlay");
+    const bar = document.getElementById("bar");
+
+    const runtime = document.getElementById("runtime");
+    const finalBadge = document.getElementById("finalBadge");
+    const finalLabel = document.getElementById("finalLabel");
+    const finalConf = document.getElementById("finalConf");
+    const resultSub = document.getElementById("resultSub");
+
+    const fractureTypeEl = document.getElementById("fractureType");
+    const fractureDescEl = document.getElementById("fractureDesc");
+    const savedNotesEl = document.getElementById("savedNotes");
+
+    const oStaff = document.getElementById("oStaff");
+    const oId = document.getElementById("oId");
+    const oName = document.getElementById("oName");
+    const oAge = document.getElementById("oAge");
+    const oScan = document.getElementById("oScan");
+    const oRecord = document.getElementById("oRecord");
+
+    const annotatedImg = document.getElementById("annotatedImg");
+    const imgStatus = document.getElementById("imgStatus");
+
+    function updateSummary(){
+      sStaff.textContent = staffEl.value.trim() || "—";
+      sId.textContent = pidEl.value.trim() || "—";
+      sName.textContent = nameEl.value.trim() || "—";
+      const av = ageValueEl.value.trim();
+      const au = ageUnitEl.value;
+      sAge.textContent = av ? `${av} ${au}` : "—";
+      sScan.textContent = scanEl.value || "—";
+    }
+
+    [staffEl, pidEl, nameEl, ageValueEl].forEach(x => x.addEventListener("input", updateSummary));
+    ageUnitEl.addEventListener("change", updateSummary);
+    scanEl.addEventListener("change", updateSummary);
+
+    function setFinal(type, text){
+      finalBadge.classList.remove("good","bad","warn");
+      finalBadge.classList.add(type);
+      finalLabel.textContent = text;
+
+      const dot = finalBadge.querySelector(".dot");
+      dot.classList.remove("good","bad","warn");
+      dot.classList.add(type);
+    }
+
+    xrayEl.addEventListener("change", () => {
+      const file = xrayEl.files?.[0];
+      if(!file) return;
+
+      const ok = ["image/png","image/jpeg","image/jpg","image/webp"];
+      if(!ok.includes(file.type)){
+        toast("error", "Invalid file", "Please upload a valid image (PNG/JPG/WebP).");
+        xrayEl.value = "";
+        previewImg.style.display = "none";
+        previewHint.style.display = "block";
+        return;
+      }
+
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewImg.style.display = "block";
+      previewHint.style.display = "none";
+    });
+
+    btnReset.addEventListener("click", () => {
+      form.reset();
+      previewImg.style.display = "none";
+      previewHint.style.display = "block";
+      updateSummary();
+
+      miniStatus.className = "badge warn";
+      miniStatus.innerHTML = `<span class="dot warn"></span><span>Waiting for submission</span>`;
+
+      annotatedImg.src = "";
+      imgStatus.textContent = "—";
+      fractureTypeEl.textContent = "—";
+      fractureDescEl.textContent = "—";
+      savedNotesEl.textContent = "—";
+      oRecord.textContent = "—";
+    });
+
+    // Submit
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const staff_id = staffEl.value.trim();
+      const pid = pidEl.value.trim();
+      const name = nameEl.value.trim();
+      const scan = scanEl.value;
+      const notes = notesEl.value.trim();
+      const age_value = ageValueEl.value.trim();
+      const age_unit = ageUnitEl.value;
+      const file = xrayEl.files?.[0];
+
+      if(!staff_id || !pid || !name || !age_value || !file){
+        toast("error", "Missing fields", "Please fill all required fields and upload an X-ray image.");
+        return;
+      }
+
+      const n = Number(age_value);
+      if(age_unit === "years" && n < 1){
+        toast("error", "Invalid age", "Age in years must be at least 1.");
+        return;
+      }
+      if(age_unit === "months" && n < 0){
+        toast("error", "Invalid age", "Age in months cannot be negative.");
+        return;
+      }
+
+      miniStatus.className = "badge warn";
+      miniStatus.innerHTML = `<span class="dot warn"></span><span>Submitted • Analyzing...</span>`;
+
+      overlay.classList.remove("hidden");
+      bar.style.width = "0%";
+      let p = 0;
+      const timer = setInterval(() => {
+        p += 10;
+        bar.style.width = Math.min(p, 90) + "%";
+      }, 120);
+
+      try {
+        const fd = new FormData();
+        fd.append("xray", file);
+        fd.append("staff_id", staff_id);
+        fd.append("pid", pid);
+        fd.append("name", name);
+        fd.append("age_value", age_value);
+        fd.append("age_unit", age_unit);
+        fd.append("scanType", scan);
+        fd.append("notes", notes);
+
+        const res = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          body: fd
+        });
+
+        const data = await res.json();
+
+        clearInterval(timer);
+        bar.style.width = "100%";
+
+        if(!res.ok){
+          overlay.classList.add("hidden");
+          toast("error", "Error", data.error || "Server error");
+          return;
+        }
+
+        // success toast
+        toast("success", "Saved", "Record saved successfully to MongoDB.");
+
+        // fill result
+        oStaff.textContent = staff_id;
+        oId.textContent = pid;
+        oName.textContent = name;
+        oAge.textContent = `${age_value} ${age_unit}`;
+        oScan.textContent = scan;
+        oRecord.textContent = data.record_id || "—";
+
+        runtime.textContent = "Completed";
+        resultSub.textContent = "Analysis finished and saved.";
+        finalConf.textContent = (data.confidence != null) ? Number(data.confidence).toFixed(3) : "—";
+
+        fractureTypeEl.textContent = data.fracture_type || "—";
+        fractureDescEl.textContent = data.fracture_description || "—";
+        savedNotesEl.textContent = (data.saved_notes && data.saved_notes.trim()) ? data.saved_notes : "—";
+
+        if(data.result && data.result.toLowerCase().includes("fracture")){
+          setFinal("bad", data.result);
+        }else{
+          setFinal("good", data.result || "No Fracture");
+        }
+
+        if(data.annotated_image_url){
+          const url = "http://127.0.0.1:5000" + data.annotated_image_url + "?t=" + Date.now();
+          annotatedImg.src = url;
+          imgStatus.textContent = "Bounding boxes generated by the model.";
+        }else{
+          annotatedImg.src = "";
+          imgStatus.textContent = "No annotated image returned.";
+        }
+
+        setTimeout(() => {
+          overlay.classList.add("hidden");
+          show(screenResult);
+          screenResult.scrollIntoView({ behavior: "smooth" });
+        }, 200);
+
+      } catch (err) {
+        clearInterval(timer);
+        overlay.classList.add("hidden");
+        toast("error", "Connection Error", "Cannot connect to Flask server. Ensure it runs on http://127.0.0.1:5000");
+        console.error(err);
+      }
+    });
+
+    btnNew.addEventListener("click", () => {
+      btnReset.click();
+      hide(screenResult);
+      show(screenForm);
+      screenForm.scrollIntoView({ behavior: "smooth" });
+    });
+
+    // init
+    updateSummary();
+  </script>
+</body>
+</html>
