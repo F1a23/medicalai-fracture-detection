@@ -29,21 +29,25 @@ if not MONGODB_URI:
 # =========================
 mongo_client = MongoClient(
     MONGODB_URI,
-    tls=True,
-    serverSelectionTimeoutMS=8000
+    serverSelectionTimeoutMS=20000
 )
-db = mongo_client[DB_NAME]
 
 # Collections
 pred_col = db["predictions"]
-patients_col = db["patients"]
-staff_col = db["staff"]
+users_col = db["users"]
 
-# Indexes (safe if called multiple times)
-patients_col.create_index("pid", unique=True)    # unique patient profile
-staff_col.create_index("staff_id", unique=True) # unique clinician profile
-pred_col.create_index([("patient.pid", 1), ("created_at", -1)])
-pred_col.create_index([("staff.staff_id", 1), ("created_at", -1)])
+# Indexes (safe)
+try:
+    users_col.create_index("pid", unique=True)
+    pred_col.create_index([("patient.pid", 1), ("created_at", -1)])
+except Exception as e:
+    print("⚠️ Mongo index creation skipped:", e)
+
+# بعد كذا تبدأ routes
+@app.route("/outputs/<path:filename>")
+def serve_output(filename):
+    ...
+
 
 # =========================
 # Paths
