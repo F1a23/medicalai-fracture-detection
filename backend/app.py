@@ -15,26 +15,23 @@ import re
 # =========================
 # Load env
 # =========================
-load_dotenv()
+import os
+from pymongo import MongoClient
 
 MONGODB_URI = os.getenv("MONGODB_URI")
-DB_NAME = os.getenv("DB_NAME", "medicalai_db")
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "*")  # for local testing
+DB_NAME = os.getenv("DB_NAME", "medicalai_db")  # اختياري
 
-if not MONGODB_URI:
-    raise ValueError("❌ MONGODB_URI not found. Add it to .env file.")
-
-# =========================
-# MongoDB
-# =========================
 mongo_client = MongoClient(
     MONGODB_URI,
+    tls=True,
     serverSelectionTimeoutMS=20000
 )
 
-# Collections
+db = mongo_client[DB_NAME]   #  لازم قبل أي collection
+
+patients_col = db["patients"]
 pred_col = db["predictions"]
-users_col = db["users"]
+
 
 # Indexes (safe)
 try:
